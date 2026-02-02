@@ -21,32 +21,16 @@ int openWheel() {
     return 0;
 }
 
+
 int calibrateSteering() {
     unsigned char buf[64];
-    uint16_t raw_inp;
     int pressable = 0;
 
-    int32_t raw_center_sum = 0;
-    int raw_center_count = 0;
-    printf("\r----- Keep wheel centered for 2 seconds...");
-    for (int i = 0; i < 200; i++) {
-        if (hid_read(handle, buf, sizeof(buf)) > 0) {
-            raw_inp = buf[17] | (buf[18] << 8);
-            raw_center_sum += raw_inp;
-            raw_center_count++;
-        }
-    }
-    uint16_t raw_center = raw_center_count > 0 ? raw_center_sum / raw_center_count : 0;
-    wheel_base.steering_center = raw_center;
-    uint16_t raw_min = raw_center;
-    uint16_t raw_max = raw_center;
-    usleep(100);
-    fflush(stdout);
-    printf("\r----- Turn wheel fully left and press X.");
+    uint16_t raw_inp = 0;
+    printf("--- Centre wheel and press X.\n\n");
     while (1) {
         if (hid_read(handle, buf, sizeof(buf)) > 0) {
             raw_inp = buf[17] | (buf[18] << 8);
-            if (raw_inp < raw_min) raw_min = raw_inp;
             if (buf[1] == 0x08) pressable = 1;
             if (buf[1] & 0x20) {      // Press X
                 if (pressable == 1) {
@@ -56,21 +40,13 @@ int calibrateSteering() {
             }
         }
     }
-    wheel_base.steering_min = raw_min;
-    usleep(100);
-    fflush(stdout);
-    printf("\r----- Turn wheel fully right and press X.");
-    while (1) {
-        if (hid_read(handle, buf, sizeof(buf)) > 0) {
-            raw_inp = buf[17] | (buf[18] << 8);
-            if (raw_inp >= (raw_center - (raw_center - raw_min) * 0.1)) break;
-        }
-    }
+    wheel_base.steering_center = raw_inp;
 
+    raw_inp = 0;
+    printf("--- Turn wheel fully left and press X.\n\n");
     while (1) {
         if (hid_read(handle, buf, sizeof(buf)) > 0) {
             raw_inp = buf[17] | (buf[18] << 8);
-            if (raw_inp > raw_max) raw_max = raw_inp;
             if (buf[1] == 0x08) pressable = 1;
             if (buf[1] & 0x20) {      // Press X
                 if (pressable == 1) {
@@ -80,10 +56,25 @@ int calibrateSteering() {
             }
         }
     }
-    wheel_base.steering_max = raw_max;
-    usleep(100);
-    fflush(stdout);
-    printf("----- Steering angles succesfully calibrated.\n");
+    wheel_base.steering_min = raw_inp;
+    
+    raw_inp = 0;
+    printf("--- Turn wheel fully right and press X.\n\n");
+    while (1) {
+        if (hid_read(handle, buf, sizeof(buf)) > 0) {
+            raw_inp = buf[17] | (buf[18] << 8);
+            if (buf[1] == 0x08) pressable = 1;
+            if (buf[1] & 0x20) {      // Press X
+                if (pressable == 1) {
+                    pressable = 0;
+                    break;
+                }
+            }
+        }
+    }
+    wheel_base.steering_max = raw_inp;
+
+    printf("--- Steering angles succesfully calibrated.\n\n");
     return 0;
 }
 
@@ -92,7 +83,7 @@ int calibratePedals() {
     uint16_t raw_min, raw_inp;
     int pressable = 0;
 
-    printf("\r----- Fully press the throttle, and press X.");
+    printf("--- Fully press the throttle, and press X.\n\n");
     while (1) {
         if (hid_read(handle, buf, sizeof(buf)) > 0) {
             raw_inp = 65535 - (buf[19] | (buf[20] << 8));
@@ -107,8 +98,7 @@ int calibratePedals() {
         }
     }
     usleep(100);
-    fflush(stdout);
-    printf("\r----- Fully relieve the throttle, and press X.");
+    printf("--- Fully relieve the throttle, and press X.\n\n");
         while (1) {
         if (hid_read(handle, buf, sizeof(buf)) > 0) {
             raw_inp = 65535 - (buf[19] | (buf[20] << 8));
@@ -123,8 +113,7 @@ int calibratePedals() {
         }
     }
     usleep(100);
-    fflush(stdout);
-    printf("\r----- Fully press the brake, and press X.");
+    printf("--- Fully press the brake, and press X.\n\n");
     while (1) {
         if (hid_read(handle, buf, sizeof(buf)) > 0) {
             raw_inp = 65535 - (buf[21] | (buf[22] << 8));
@@ -139,8 +128,7 @@ int calibratePedals() {
         }
     }
     usleep(100);
-    fflush(stdout);
-    printf("\r----- Fully relieve the brake, and press X.");
+    printf("--- Fully relieve the brake, and press X.\n\n");
         while (1) {
         if (hid_read(handle, buf, sizeof(buf)) > 0) {
             raw_inp = 65535 - (buf[21] | (buf[22] << 8));
@@ -155,8 +143,7 @@ int calibratePedals() {
         }
     }
     usleep(100);
-    fflush(stdout);
-    printf("\r----- Fully press the clutch, and press X.");
+    printf("--- Fully press the clutch, and press X.\n\n");
     while (1) {
         if (hid_read(handle, buf, sizeof(buf)) > 0) {
             raw_inp = 65535 - (buf[23] | (buf[24] << 8));
@@ -171,8 +158,7 @@ int calibratePedals() {
         }
     }
     usleep(100);
-    fflush(stdout);
-    printf("\r----- Fully relieve the clutch, and press X.");
+    printf("--- Fully relieve the clutch, and press X.\n\n");
     while (1) {
         if (hid_read(handle, buf, sizeof(buf)) > 0) {
             raw_inp = 65535 - (buf[23] | (buf[24] << 8));
@@ -188,7 +174,6 @@ int calibratePedals() {
         }
     }
     usleep(100);
-    fflush(stdout);
     printf("\n\n----- Calibration done. ------\n\n");
     return 0;
 }
@@ -224,19 +209,24 @@ void sendWheelData() {
     uint16_t raw_max = wheel_base.steering_max;
     while (1) {
         int res = hid_read(handle, buf, sizeof(buf));
-        if (buf[1] & 0x40) break; else   // Press O
         if (res > 0) {
             raw_angle = buf[17] | (buf[18] << 8);
 
             if (raw_angle >= raw_center) {
-                angle_deg = ((double)(raw_angle - raw_center) / (raw_max - raw_center)) * MAX_ROTATION;
+                angle_deg = ((double)(raw_angle - raw_center) / (raw_max - raw_center)) * RULE_MAX_ROTATION;
             } else {
-                angle_deg = ((double)(raw_angle - raw_center) / (raw_center - raw_min)) * MAX_ROTATION;
+                angle_deg = ((double)(raw_angle - raw_center) / (raw_center - raw_min)) * RULE_MAX_ROTATION;
             }
 
             //client_receive();
 
             char message[100];
+            if (buf[1] & 0x40) {
+                message[0] = 'C';
+                client_send(message);
+                printf("\n");
+                break;
+            }
             snprintf(message, sizeof(message), "%lf", angle_deg);
             client_send(message);
 
