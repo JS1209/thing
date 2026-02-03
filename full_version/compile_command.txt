@@ -1,2 +1,2 @@
-sudo gcc ./client/client.c ./client/client.h ./fanatec/main.c ./fanatec/fanatec_functions.c ./fanatec/global.h ./fanatec/global.c -o app -lhidapi-hidraw
+sudo gcc ./client/network/client.c ./client/network/client.h ./client/fanatec/main.c ./client/fanatec/fanatec_functions.c ./client/fanatec/global.h ./client/fanatec/global.c ./client/errorhandling/error_handling.c ./client/errorhandling/error_handling.h -o app -lhidapi-hidraw
 -pthread

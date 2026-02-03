@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <sys/select.h>
+#include "../errorhandling/error_handling.h"
 
 int client_socket = -1;  // Global client socket
 
@@ -20,7 +21,7 @@ int client_init(const char *server_ip, int port) {
     struct sockaddr_in server_addr;
     client_socket = socket(AF_INET, SOCK_DGRAM, 0);
     if (client_socket < 0) {
-        perror("Socket creation failed");
+        perror("Client: Socket creation failed");
         return -1;
     }
     set_non_blocking(client_socket);
@@ -28,14 +29,14 @@ int client_init(const char *server_ip, int port) {
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(port);
     if (inet_pton(AF_INET, server_ip, &server_addr.sin_addr) <= 0) {
-        //perror("Invalid address or address not supported");
+        log_perror_to_file("Client: Invalid address or address not supported: ");
         close(client_socket);
         return -1;
     }
     if (connect(client_socket, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
         // Connection attempt failed, but that's okay for non-blocking sockets
         if (errno != EINPROGRESS) {
-            //perror("Connection failed");
+        log_perror_to_file("Client: Connection failed: ");
             close(client_socket);
             return -1;
         }
@@ -59,15 +60,15 @@ void client_send(const char *message) {
     struct timeval timeout = { 1, 0 };  // 1 second timeout
     int ready = select(client_socket + 1, NULL, &write_fds, NULL, &timeout);
     if (ready < 0) {
-        perror("select failed");
+        log_perror_to_file("Client\tclient_send:\tSelect failed");
         return;
     }
 
     if (FD_ISSET(client_socket, &write_fds)) {
         if (send(client_socket, message, strlen(message), 0) < 0) {
-            perror("Send failed");
+            log_perror_to_file("Client\tclient_send\tSend failed");
         } else {
-            printf("\rMessage sent: %s", message);
+            //printf("\rMessage sent: %s", message);
         }
     } else {
         printf("Socket not ready for sending. Retrying...\n");
@@ -88,6 +89,7 @@ void client_receive() {
     struct timeval timeout = { 0, 0 };  // 1 second timeout
     int ready = select(client_socket + 1, &read_fds, NULL, NULL, &timeout);
     if (ready < 0) {
+        log_perror_to_file("Client\tclient_recieve\tSelect failed");
         //perror("select failed");
         return;
     }
@@ -96,7 +98,7 @@ void client_receive() {
         char buffer[1024];
         ssize_t bytes_received = recv(client_socket, buffer, sizeof(buffer) - 1, 0);
         if (bytes_received < 0) {
-            //perror("Receive failed");
+            log_perror_to_file("Client\tclient_recieve\tRecieve failed");
         } else if (bytes_received == 0) {
             //printf("Server closed the connection.\n");
         } else {
