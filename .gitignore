@@ -54,6 +54,6 @@ dkms.conf
 # debug information files
 *.dwo
 
-./app
-./server/server_app
-./error_log.txt
+app
+server/server_app
+error_log.txt
