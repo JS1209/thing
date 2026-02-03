@@ -45,7 +45,7 @@ void start_server() {
         exit(EXIT_FAILURE);
     }
 
-    printf("Server listening on port %d (UDP)...\n", PORT);
+    printf("Server listening on port %d (UDP)...\n", RULE_PORT);
 
     // Continuously receive messages from clients
     while (1) {

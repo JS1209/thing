@@ -49,7 +49,7 @@ int client_init(const char *server_ip, int port) {
         }
     }
 
-    printf("Connecting to server at %s:%d...\n", server_ip, port);
+    printf("Connecting to server at %s:%d...\n\n\n", server_ip, port);
     return 0;
 }
 
@@ -76,7 +76,7 @@ void client_send(const char *message) {
         if (send(client_socket, message, strlen(message), 0) < 0) {
             perror("Send failed");
         } else {
-            printf("\rMessage sent: %s\n", message);
+            printf("\rMessage sent: %s", message);
         }
     } else {
         printf("Socket not ready for sending. Retrying...\n");
