@@ -9,6 +9,6 @@ int calibrateSteering();
 int calibratePedals();
 int setupWheelBase();
 void sendWheelData();
-void calibrateWheelBaseValue(int par_wheelbase_entry, char par_message[50]);
+void calibrateWheelBaseValue(int par_wheelbase_entry, char *par_message);
 
 #endif // FANATEC_FUNCTIONS_H

@@ -18,18 +18,12 @@ void set_non_blocking(int sockfd) {
 // Function to initialize and connect the client to the server
 int client_init(const char *server_ip, int port) {
     struct sockaddr_in server_addr;
-
-    // Create a socket
     client_socket = socket(AF_INET, SOCK_DGRAM, 0);
     if (client_socket < 0) {
-        //perror("Socket creation failed");
+        perror("Socket creation failed");
         return -1;
     }
-
-    // Set the socket to non-blocking
     set_non_blocking(client_socket);
-
-    // Set up the server address
     memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(port);
@@ -38,8 +32,6 @@ int client_init(const char *server_ip, int port) {
         close(client_socket);
         return -1;
     }
-
-    // Connect to the server
     if (connect(client_socket, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
         // Connection attempt failed, but that's okay for non-blocking sockets
         if (errno != EINPROGRESS) {
@@ -53,7 +45,6 @@ int client_init(const char *server_ip, int port) {
     return 0;
 }
 
-// Function to send a message to the server asynchronously
 void client_send(const char *message) {
     if (client_socket < 0) {
         printf("Client socket not initialized!\n");
@@ -83,7 +74,6 @@ void client_send(const char *message) {
     }
 }
 
-// Function to receive a message from the server asynchronously
 void client_receive() {
     if (client_socket < 0) {
         printf("Client socket not initialized!\n");
@@ -110,7 +100,7 @@ void client_receive() {
         } else if (bytes_received == 0) {
             //printf("Server closed the connection.\n");
         } else {
-            buffer[bytes_received] = '\0';  // Null-terminate the received string
+            buffer[bytes_received] = '\0';
             //printf("Received message: %s\n", buffer);
         }
     } else {
@@ -118,7 +108,6 @@ void client_receive() {
     }
 }
 
-// Function to close the client connection
 void client_close() {
     if (client_socket >= 0) {
         close(client_socket);

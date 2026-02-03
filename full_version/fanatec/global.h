@@ -26,5 +26,6 @@ extern struct WheelBase {
 } wheel_base;
 
 extern hid_device *handle;
+extern FILE *logfile;
 
 #endif // GLOBAL_H

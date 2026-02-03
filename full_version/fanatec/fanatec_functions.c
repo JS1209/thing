@@ -21,7 +21,7 @@ int openWheel() {
     return 0;
 }
 
-void calibrateWheelBaseValue(int par_wheelbase_entry, char par_message[50]) {
+void calibrateWheelBaseValue(int par_wheelbase_entry, char *par_message) {
     unsigned char buf[64];
     int pressable = 0;
     uint16_t raw_inp = 0;
@@ -43,7 +43,7 @@ void calibrateWheelBaseValue(int par_wheelbase_entry, char par_message[50]) {
         var_buf_num[0] = 23;
         var_buf_num[1] = 24;
     }
-    printf(par_message, 50);
+    printf(par_message, sizeof(par_message));
     while (1) {
         if (hid_read(handle, buf, sizeof(buf)) > 0) {
             raw_inp = buf[var_buf_num[0]] | (buf[var_buf_num[1]] << 8);
@@ -72,7 +72,7 @@ int calibrateSteering() {
     calibrateWheelBaseValue(0, "--- Centre wheel and press X.\n");
     calibrateWheelBaseValue(1, "--- Turn wheel fully left and press X.\n");
     calibrateWheelBaseValue(2, "--- Turn wheel fully right and press X.\n");
-    printf("\n\n----------------------------------- Steering calibration done.\n\n");
+    printf("\n\n----------------------------------- Steering calibration done.\n\n\n");
     return 0;
 }
 
