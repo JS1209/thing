@@ -13,6 +13,8 @@
 #define RULE_IP "127.0.0.1"
 #define RULE_PORT 5000
 #define RULE_LOG_FILE "error_log.txt"
+#define RULE_VEN_ID 0x0eb7
+#define RULE_PROD_ID 0x0004
 
 extern struct WheelBase {
     uint16_t steering_center;

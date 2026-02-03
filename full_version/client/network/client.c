@@ -9,11 +9,10 @@
 #include <sys/select.h>
 #include "../errorhandling/error_handling.h"
 
-int client_socket = -1;  // Global client socket
+int client_socket = -1;
 
-// Set socket to non-blocking
 void set_non_blocking(int sockfd) {
-    fcntl(sockfd, F_SETFL, O_NONBLOCK);
+    fcntl(sockfd, F_SETFL, O_NONBLOCK); // Set socket to non-blocking
 }
 
 // Function to initialize and connect the client to the server
