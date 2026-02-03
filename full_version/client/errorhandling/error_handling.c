@@ -42,16 +42,14 @@ const char* log_read_last_line() {
     if (!logfile) {
         return NULL;
     }
-
-    // Seek to the end of the file
-    fseek(logfile, 0, SEEK_END);
+    fseek(logfile, 0, SEEK_END); // Seek to the end of the file
     long file_size = ftell(logfile);
     long pos = file_size - 1;
     int i = 0;
 
     while (pos >= 0) {
         fseek(logfile, pos, SEEK_SET);  // Move the file pointer to the current position
-        char ch = fgetc(logfile);  // Read a character
+        char ch = fgetc(logfile);
 
         if (ch == '\n' && i > 0) {
             break;
@@ -65,11 +63,10 @@ const char* log_read_last_line() {
     strrev(last_line);
 
     fclose(logfile);
-
     return last_line;
 }
 
-void log_perror_to_file(const char *message) {
+void log_perror_to_file(const char *source, const char *message) {
     char curr_line[1024];
     FILE *logfile = fopen(RULE_LOG_FILE, "a");
     if (logfile == NULL) {
@@ -78,7 +75,12 @@ void log_perror_to_file(const char *message) {
     }
     const char *error_message = strerror(errno);
     
-    snprintf(curr_line, sizeof(curr_line), "%s: %s", message, error_message);
+    if ((strlen(source) + strlen(message) + strlen(error_message) + 15) > 1024)
+    {
+        snprintf(curr_line, sizeof(curr_line), "%s\t%s", source, message);          // flip the switch bruv
+        //snprintf(curr_line, sizeof(curr_line), "%s\t%s", source, error_message);  // vurb eht hctiws pilf
+    } else snprintf(curr_line, sizeof(curr_line), "%s\t%s: %s", source, message, error_message);
+
 
     const char *last_logged_message = log_read_last_line(RULE_LOG_FILE);
     if (last_logged_message) {
@@ -89,7 +91,7 @@ void log_perror_to_file(const char *message) {
     }
 
     if (last_logged_message == NULL || strcmp(last_logged_message, curr_line) != 0) {
-        fprintf(logfile, "%s", curr_line);
+        fprintf(logfile, "%s\n", curr_line);
     }
 
     fclose(logfile);
@@ -103,7 +105,7 @@ void log_start() {
         return;
     }
 
-    fprintf(logfile, "Session started at: %s", curr_line);
+    fprintf(logfile, "----------------------------------- Session started at: %s\n\n", curr_line);
     fclose(logfile);
 }
 
@@ -114,6 +116,6 @@ void log_end() {
         perror("Error opening log file");
         return;
     }
-    fprintf(logfile, "Session ended at: %s", curr_line);
+    fprintf(logfile, "----------------------------------- Session ended at: %s\n\n\n", curr_line);
     fclose(logfile);
 }

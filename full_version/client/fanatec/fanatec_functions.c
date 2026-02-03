@@ -8,17 +8,39 @@
 #include "../network/client.h"
 #include "../errorhandling/error_handling.h"
 
+int check_device_available(unsigned short vendor_id, unsigned short product_id) {
+    struct hid_device_info *devs, *cur_dev;
+    int found = 0;
+    devs = hid_enumerate(0, 0);
+    cur_dev = devs;
+
+    while (cur_dev) {
+        if (cur_dev->vendor_id == vendor_id && cur_dev->product_id == product_id) {
+            found = 1;
+            break;
+        }
+
+        if (!found && cur_dev->next == NULL) log_perror_to_file("/fanatec/fanatec_functions.check_device_available", "Error: No device available.");
+        cur_dev = cur_dev->next;
+    }
+    hid_free_enumeration(devs);
+
+    return found;
+}
+
 int open_wheel() {
     if (hid_init()) {
         fprintf(stderr, "ERROR: Failed to initialize HIDAPI");
-        log_perror_to_file("\topen_wheel\tSend failed");
+        log_perror_to_file("/fanatec/fanatec_functions.open_wheel", "Error: Wheel could not be opened, hid_init failed");
         return 1;
     }
-
-    handle = hid_open(0x0eb7, 0x0004, NULL);
-    if (!handle) {
-        fprintf(stderr, "ERROR: Unable to open Fanatec wheel");
-        return 1;
+    if (check_device_available(0x0eb7, 0x0004)) {
+        handle = hid_open(0x0eb7, 0x0004, NULL);
+        if (!handle) {
+            fprintf(stderr, "ERROR: Unable to open Fanatec wheel");
+            log_perror_to_file("/fanatec/fanatec_functions.open_wheel", "Error: Wheel could not be opened, handle is NULL");
+            return 1;
+        }
     }
     return 0;
 }
@@ -91,8 +113,11 @@ int calibrate_pedals() {
 }
 
 int setup_wheelbase() {
-    open_wheel();
-    //if (!handle) return 1;
+    if (open_wheel()) {
+        log_perror_to_file("/fanatec/fanatec_functions.setup_wheelbase", "Error: Setup failed miserably. Close program.");
+        return 1;
+    }
+    if (!handle) return 1;
 
     calibrate_steering();
     calibrate_pedals();

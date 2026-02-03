@@ -1,1 +1,13 @@
-Client	client_send	Send failed: Connection refused
+----------------------------------- Session started at: 03-02-2026 - 21:20:
+
+/client/client.client_send	Send failed: Connection refused
+----------------------------------- Session ended at: 03-02-2026 - 21:21:
+
+
+----------------------------------- Session started at: 03-02-2026 - 21:24:
+
+----------------------------------- Session started at: 03-02-2026 - 21:25:
+
+----------------------------------- Session ended at: 03-02-2026 - 21:26:
+
+
