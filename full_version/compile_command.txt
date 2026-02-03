@@ -1,1 +1,1 @@
-gcc ./client/client.c ./client/client.h ./fanatec/main.c ./fanatec/fanatec_functions.c ./fanatec/global.h ./fanatec/global.c -o app -lhidapi-hidraw
+gcc ./client/client.c ./client/client.h ./fanatec/main.c ./fanatec/fanatec_functions.c ./fanatec/global.h ./fanatec/global.c -o app -lhidapi-hidraw -pthread
