@@ -6,10 +6,12 @@
 #include <stdint.h>
 #include <hidapi/hidapi.h>
 #include <unistd.h>
-#include "global.h"
 #include "fanatec_functions.h"
 
-#define MAX_ROTATION 360.0
+#define RULE_MAX_ROTATION 360.0
+#define RULE_BUFFER_SIZE 1024
+#define RULE_IP "127.0.0.1"
+#define RULE_PORT 5000
 
 extern struct WheelBase {
     uint16_t steering_center;
@@ -22,6 +24,8 @@ extern struct WheelBase {
     uint16_t clutch_min;
     uint16_t clutch_max;
 } wheel_base;
+
 extern hid_device *handle;
+extern FILE *logfile;
 
 #endif // GLOBAL_H
